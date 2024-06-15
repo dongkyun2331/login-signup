@@ -2,8 +2,10 @@ import { verifyPassword } from "../../../lib/bcrypt";
 import mysql from "mysql2/promise";
 
 export default async (req, res) => {
+  console.log(`Request method: ${req.method}`);
+
   if (req.method !== "POST") {
-    return res.status(405).end();
+    return res.status(405).json({ message: "Method Not Allowed" });
   }
 
   const { email, password } = req.body;
@@ -12,16 +14,14 @@ export default async (req, res) => {
     return res.status(400).json({ message: "Email and password are required" });
   }
 
-  // 데이터베이스 연결
-  const connection = await mysql.createConnection({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-  });
-
   try {
-    // 사용자 조회
+    const connection = await mysql.createConnection({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+    });
+
     const [rows] = await connection.execute(
       "SELECT email, password FROM users WHERE email = ?",
       [email]
@@ -41,7 +41,5 @@ export default async (req, res) => {
     res.status(200).json({ message: "Login successful" });
   } catch (error) {
     res.status(500).json({ message: "Internal server error" });
-  } finally {
-    connection.end();
   }
 };
