@@ -20,6 +20,7 @@ export default async (req, res) => {
       user: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
+      port: process.env.DB_PORT || 3306, // 추가된 부분
     });
 
     const [rows] = await connection.execute(
